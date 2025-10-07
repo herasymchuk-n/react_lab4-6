@@ -1,16 +1,49 @@
-# React + Vite
+# Component Tree + Data Flow (simplified)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+App
+└── TodoList (state: todos, searchTerm, currentPage)
+    ├── AddTodoForm (state: newTodoTitle)
+    │     ↑ onAddTodo(newTask)  (child → parent: send new task to TodoList)
+    ├── SearchInput (controlled input for searchTerm)
+    │     ↑ onSearchChange(text) (child → parent: update searchTerm in TodoList)
+    ├── TodoItem (state: isEditing, editTitle)
+    │     props: todo, onToggle, onDelete, onEdit
+    │     ├── [Checkbox] toggle → onToggle(todo.id) (child → parent)
+    │     ├── [Edit Button] sets isEditing=true (local state)
+    │     ├── [Save Button] calls onEdit(todo.id, editTitle) (child → parent)
+    │     └── [Delete Button] calls onDelete(todo.id) (child → parent)
+    └── PaginationControls
+          state: currentPage
+          ↑ onPageChange(pageNumber) (child → parent)
 
-Currently, two official plugins are available:
+## Short Description
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### TodoList App Structure
 
-## React Compiler
+- **App**: Root component, renders TodoList.
 
-The React Compiler is currently not compatible with SWC. See [this issue](https://github.com/vitejs/vite-plugin-react/issues/428) for tracking the progress.
+- **TodoList**: Manages todos, searchTerm, and pagination state. Handles CRUD operations via useTodos hook.
 
-## Expanding the ESLint configuration
+- **AddTodoForm**: Allows adding new todos. Controlled input, lifts new todo to TodoList.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- **SearchInput**: Controlled input for searching todos by title. Updates parent state.
+
+- **TodoItem**: Renders individual todo. Manages local edit state (isEditing and editTitle). Calls parent handlers for toggle, edit, and delete.
+
+- **PaginationControls**: Handles page navigation. Updates currentPage state in parent.
+
+## Data Flow
+
+1. `useTodos` loads todos from API on mount (`fetchTodos` inside `useEffect`)
+
+2. `TodoList` manages `searchTerm` and pagination (`currentPage`, `limitPerPage`)
+
+3. Filtering is applied via `useEffect` in `useTodos` based on `searchTerm`
+
+4. Pagination is handled in `TodoList` using `currentPage` and `limitPerPage` (API `skip`/`limit`)
+
+5. `TodoList` passes todos and handlers (`addTodo`, `toggleTodo`, `deleteTodo`, `editTodoTitle`, `goToNextPage`, `goToPrevPage`) to child components (`AddTodoForm`, `SearchInput`, `TodoItem`, `PaginationControls`)
+
+6. User interactions in children call parent handlers → local state is updated immediately
+
+7. Optimistic updates: local state is updated first; API requests happen asynchronously. If API fails, local state may revert, and an error is displayed

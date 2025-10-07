@@ -3,7 +3,22 @@ import { useTodos } from '../hooks/useTodos';
 import { TodoItem } from './TodoItem';
 
 export function TodoList() {
-  const { todos, isLoading, error, deleteTodo, toggleTodo, addTodo } = useTodos();
+  const {
+    todos,
+    isLoading,
+    error,
+    addTodo,
+    deleteTodo,
+    toggleTodo,
+    editTodoTitle,
+    searchTerm,
+    setSearchTerm,
+    currentPage,
+    totalTodos,
+    goToNextPage,
+    goToPrevPage,
+  } = useTodos();
+
   const [newTodoTitle, setNewTodoTitle] = useState('');
 
   const handleAdd = () => {
@@ -16,6 +31,15 @@ export function TodoList() {
   return (
     <div style={{ maxWidth: '600px', margin: 'auto' }}>
       <h1>Todo List</h1>
+      
+      <input
+        type="text"
+        placeholder="Search todos..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        style={{ width: '70%', padding: '8px', marginBottom: '10px' }}
+      />
+
       <div>
         <input
           type="text"
@@ -25,10 +49,7 @@ export function TodoList() {
           onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
           style={{ width: '70%', padding: '8px' }}
         />
-        <button
-          onClick={handleAdd}
-          style={{ padding: '8px 12px', marginLeft: '10px' }}
-        >
+        <button onClick={handleAdd} style={{ padding: '8px 12px', marginLeft: '10px' }}>
           Add
         </button>
       </div>
@@ -44,9 +65,19 @@ export function TodoList() {
             todo={todo}
             onToggle={toggleTodo}
             onDelete={deleteTodo}
+            onEdit={editTodoTitle}
           />
         ))}
       </ul>
+      <div style={{ marginTop: '20px' }}>
+        <button onClick={goToPrevPage} disabled={currentPage === 1}>
+          Previous
+        </button>
+        <span style={{ margin: '0 10px' }}>
+          Page {currentPage} — Total: {totalTodos}
+        </span>
+        <button onClick={goToNextPage}>Next</button>
+      </div>
     </div>
   );
 }
