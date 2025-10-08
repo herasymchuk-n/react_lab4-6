@@ -1,20 +1,19 @@
 # Component Tree + Data Flow (simplified)
 ```mermaid
-App
-└── TodoList (state: todos, searchTerm, currentPage)
-    ├── AddTodoForm (state: newTodoTitle)
-    │     ↑ onAddTodo(newTask)  (child → parent: send new task to TodoList)
-    ├── SearchInput (controlled input for searchTerm)
-    │     ↑ onSearchChange(text) (child → parent: update searchTerm in TodoList)
-    ├── TodoItem (state: isEditing, editTitle)
-    │     props: todo, onToggle, onDelete, onEdit
-    │     ├── [Checkbox] toggle → onToggle(todo.id) (child → parent)
-    │     ├── [Edit Button] sets isEditing=true (local state)
-    │     ├── [Save Button] calls onEdit(todo.id, editTitle) (child → parent)
-    │     └── [Delete Button] calls onDelete(todo.id) (child → parent)
-    └── PaginationControls
-          state: currentPage
-          ↑ onPageChange(pageNumber) (child → parent)
+graph TD
+    A["App"] --> B["TodoList\nstate: todos, searchTerm, currentPage"]
+    B --> C["AddTodoForm\nstate: newTodoTitle"]
+    C -->|"onAddTodo(newTask)\n(child → parent: send new task)"| B
+    B --> D["SearchInput\ncontrolled input for searchTerm"]
+    D -->|"onSearchChange(text)\n(child → parent: update searchTerm)"| B
+    B --> E["TodoItem\nstate: isEditing, editTitle\nprops: todo, onToggle, onDelete, onEdit"]
+    E -->|"Checkbox → onToggle(todo.id)"| B
+    E -->|"Edit Button → isEditing=true (local)"| E
+    E -->|"Save Button → onEdit(todo.id, editTitle)"| B
+    E -->|"Delete Button → onDelete(todo.id)"| B
+    B --> F["PaginationControls\nstate: currentPage"]
+    F -->|"onPageChange(pageNumber)\n(child → parent)"| B
+
 ```
 ## Short Description
 
