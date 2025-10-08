@@ -1,5 +1,5 @@
 # Component Tree + Data Flow (simplified)
-
+```mermaid
 App
 └── TodoList (state: todos, searchTerm, currentPage)
     ├── AddTodoForm (state: newTodoTitle)
@@ -15,7 +15,7 @@ App
     └── PaginationControls
           state: currentPage
           ↑ onPageChange(pageNumber) (child → parent)
-
+```
 ## Short Description
 
 ### TodoList App Structure
